@@ -1,0 +1,21 @@
+@CHARSET "UTF-8";
+body {
+	padding: 5%;
+
+}
+
+.adiciona {
+	position:relative;
+	width: 20%;
+	height: 100%;
+	float: left;
+	font-size: 12px;
+}
+
+.lista {
+	position: relative;
+	width: 75%;
+	height: 100%;
+	float: left;
+	font-size: 10px;
+}
