@@ -17,14 +17,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import br.com.populaBD.models.Carreira;
-import br.com.populaBD.models.CategoriaCarreira;
+import br.com.populaBD.models.Curso;
 import br.com.populaBD.models.Ferramenta;
+import br.com.populaBD.models.TipoCurso;
 import br.com.populaBD.repository.CarreiraRepository;
+import br.com.populaBD.repository.CursoRepository;
 import br.com.populaBD.repository.FerramentaRepository;
 
+@RequestMapping("/curso")
 @Controller
-@RequestMapping("/carreira")
-public class CarreiraController {
+public class CursoController {
+	
+	
+	@Autowired
+	private CursoRepository cursoRepository;
 	
 	@Autowired
 	private CarreiraRepository carreiraRepository;
@@ -32,9 +38,10 @@ public class CarreiraController {
 	@Autowired
 	private FerramentaRepository ferramentaRepository;
 	
+	
 	@RequestMapping("/popula")
 	public void popula() throws IOException {
-		File arquivo = new File("carreiras.xlsx");
+		File arquivo = new File("cursos.xlsx");
 		FileInputStream fis = new FileInputStream(arquivo);
 
 		XSSFWorkbook myWorkBook = new XSSFWorkbook(fis);
@@ -45,37 +52,58 @@ public class CarreiraController {
 			Row row = rowIterator.next();
 
 			Iterator<Cell> cellIterator = row.cellIterator();
-			Carreira carreira = new Carreira();
+			Curso curso = new Curso();
 			while (cellIterator.hasNext()) {
 				Cell cell = cellIterator.next();
 				System.out.println(cell.getStringCellValue());
-				carreira.setNome(cell.getStringCellValue());
+				curso.setNome(cell.getStringCellValue());
 
 				cell = cellIterator.next();
 				System.out.println(cell.getStringCellValue());
-				CategoriaCarreira categoria = CategoriaCarreira.valueOf(cell.getStringCellValue());
-				carreira.setCategoria(categoria);
+				curso.setNomeAbreviado(cell.getStringCellValue());
 				
 				cell = cellIterator.next();
 				System.out.println(cell.getStringCellValue());
-				carreira.setLink(cell.getStringCellValue());
+				curso.setLink(cell.getStringCellValue());
 				
 				cell = cellIterator.next();
 				System.out.println(cell.getStringCellValue());
-				String s = cell.getStringCellValue();
+				TipoCurso tipo = TipoCurso.valueOf(cell.getStringCellValue());
+				curso.setTipo(tipo);
+				
+				cell = cellIterator.next();
+				System.out.println(cell.getStringCellValue());
+				String sc = cell.getStringCellValue();
+				List<Carreira> carreiras = new ArrayList<>();
+				for(String str : sc.split(",")) {
+					System.out.println(str);
+					Carreira c = carreiraRepository.findByNome(str);
+					System.out.println("ACHOU CARREIRA: " + c.toString());
+					carreiras.add(c);
+					System.out.println("carreiras: " + carreiras.toString());
+				}
+				curso.setCarreiras(carreiras);;
+				
+				cell = cellIterator.next();
+				System.out.println(cell.getStringCellValue());
+				String sf = cell.getStringCellValue();
 				List<Ferramenta> ferramentas = new ArrayList<>();
-				for(String str : s.split(",")) {
+				for(String str : sf.split(",")) {
 					System.out.println(str);
 					Ferramenta f = ferramentaRepository.findByNome(str);
 					System.out.println("ACHOU FERRAMENTA: " + f.toString());
 					ferramentas.add(f);
 					System.out.println("ferramentas: " + ferramentas.toString());
 				}
-				carreira.setFerramentas(ferramentas);
 				
+				curso.setFerramentas(ferramentas);
+				//carreira.setFerramentas(ferramentas);
+				//ferramenta.setDescricao(cell.getStringCellValue());	
 			}
 			System.out.println("");
-			carreiraRepository.save(carreira);
+			cursoRepository.save(curso);
+			//System.out.println("ferramenta: " + ferramenta.getNome() + " - " + ferramenta.getCategoria() + " - "
+			//		+ ferramenta.getDescricao());
 		}
 
 		myWorkBook.close();
@@ -84,8 +112,8 @@ public class CarreiraController {
 	
 	@RequestMapping("/lista")
 	public ModelAndView lista() {
-		ModelAndView mv = new ModelAndView("carreira/form");
-		List<Carreira> carreiras = (List<Carreira>) carreiraRepository.findAll();
-		return mv.addObject("carreiras", carreiras);
+		ModelAndView mv = new ModelAndView("curso/form");
+		List<Curso> cursos = (List<Curso>) cursoRepository.findAll();
+		return mv.addObject("cursos", cursos);
 	}
 }

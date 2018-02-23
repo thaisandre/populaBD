@@ -24,7 +24,7 @@ import br.com.populaBD.repository.FerramentaRepository;
 public class FerramentaController {
 
 	@Autowired
-	FerramentaRepository ferramentaRepository;
+	private FerramentaRepository ferramentaRepository;
 
 	@RequestMapping("/popula")
 	public void popula() throws IOException {
